@@ -7,7 +7,7 @@ import dagger.Module
 import dagger.Provides
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
-import javax.inject.Named
+import javax.inject.Qualifier
 
 const val LOVE = "Love"
 const val HELLO = "Hello"
@@ -15,11 +15,11 @@ const val HELLO = "Hello"
 class MainActivity : AppCompatActivity() {
 
     @Inject
-    @field:Named("Love") // @field is a Kotlin way of adding a field annotation when using it
+    @field:PreferToSay("Love") // @field is a Kotlin way of adding a field annotation when using it
     lateinit var infoLove: Info // Inform Dagger 2 which member variable it should create magically
 
     @Inject
-    @field:Named("Hello")
+    @field:PreferToSay("Hello")
     lateinit var infoHello: Info
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +34,7 @@ class Info(val text: String)
 
 @Component(modules = [SomethingModule::class]) // hook SomethingModule into SomethingComponent by listing it inside the modules param
 interface SomethingComponent {
-    fun inject(app: MainActivity) // inject can actually be named something else
+    fun inject(app: MainActivity) // inject can actually be PreferToSay something else
 }
 
 @Module
@@ -45,14 +45,19 @@ class SomethingModule { // a bag of sorts to store a repository of provided obje
     }
 
     @Provides
-    @Named(LOVE) // @Named is an inbuilt Qualifier, we can use a String to differentiate the Provider
+    @PreferToSay(LOVE) // @PreferToSay is a custom Qualifier, we have replaced @Named with it (it is a replica codewise)
     fun sayLoveDagger2(): Info {
         return Info("Love Dagger 2")
     }
 
     @Provides
-    @Named(HELLO)
+    @PreferToSay(HELLO)
     fun sayHelloDagger2(): Info {
         return Info("Hello Dagger 2")
     }
 }
+
+@Qualifier
+@MustBeDocumented
+@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
+annotation class PreferToSay(val value: String = "")

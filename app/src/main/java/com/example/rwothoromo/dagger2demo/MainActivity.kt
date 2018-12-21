@@ -3,6 +3,8 @@ package com.example.rwothoromo.dagger2demo
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import dagger.Component
+import dagger.Module
+import dagger.Provides
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
@@ -19,11 +21,17 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-class Info @Inject constructor() {
-    val text = "Hello Dagger2"
+class Info(val text: String)
+
+@Component(modules = [SomethingModule::class]) // hook SomethingModule into SomethingComponent by listing it inside the modules param
+interface SomethingComponent {
+    fun inject(app: MainActivity) // inject can actually be named something else
 }
 
-@Component
-interface SomethingComponent {
-    fun inject(app: MainActivity)
+@Module
+class SomethingModule { // a bag of sorts to store a repository of provided objects e.g. the Info provider, for Injection
+    @Provides
+    fun providesInfo(): Info {
+        return Info("This function is here to replace the text!")
+    }
 }

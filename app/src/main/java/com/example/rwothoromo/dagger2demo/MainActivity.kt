@@ -15,11 +15,11 @@ const val HELLO = "Hello"
 class MainActivity : AppCompatActivity() {
 
     @Inject
-    @field:PreferToSay("Love") // @field is a Kotlin way of adding a field annotation when using it
+    @field:PreferToSay(LOVE) // @field is a Kotlin way of adding a field annotation when using it
     lateinit var infoLove: Info // Inform Dagger 2 which member variable it should create magically
 
     @Inject
-    @field:PreferToSay("Hello")
+    @field:PreferToSay(HELLO)
     lateinit var infoHello: Info
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,15 +30,8 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-class Info(val text: String)
-
-@Component(modules = [SomethingModule::class]) // hook SomethingModule into SomethingComponent by listing it inside the modules param
-interface SomethingComponent {
-    fun inject(app: MainActivity) // inject can actually be PreferToSay something else
-}
-
 @Module
-class SomethingModule { // a bag of sorts to store a repository of provided objects e.g. the Info provider, for Injection
+open class SomethingModule { // a bag of sorts to store a repository of provided objects e.g. the Info provider, for Injection
     @Provides
     fun providesInfo(): Info {
         return Info("This function is here to replace the text!")
@@ -46,15 +39,22 @@ class SomethingModule { // a bag of sorts to store a repository of provided obje
 
     @Provides
     @PreferToSay(LOVE) // @PreferToSay is a custom Qualifier, we have replaced @Named with it (it is a replica codewise)
-    fun sayLoveDagger2(): Info {
+    open fun sayLoveDagger2(): Info {
         return Info("Love Dagger 2")
     }
 
     @Provides
     @PreferToSay(HELLO)
-    fun sayHelloDagger2(): Info {
+    open fun sayHelloDagger2(): Info {
         return Info("Hello Dagger 2")
     }
+}
+
+class Info(val text: String)
+
+@Component(modules = [SomethingModule::class]) // hook SomethingModule into SomethingComponent by listing it inside the modules param
+interface SomethingComponent {
+    fun inject(app: MainActivity) // inject can actually be PreferToSay something else
 }
 
 @Qualifier
